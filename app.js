@@ -3,15 +3,15 @@
    ====================================================================== */
 
 // ─── Constants ──────────────────────────────────────────────────────────
-const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const MONTHS_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+const MONTHS_FULL = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const CSV_PATH = 'REGISTRO 2025.csv';
 
 // Chart.js color palette
 const PALETTE = [
-    '#34d399','#60a5fa','#fb923c','#a78bfa','#fb7185',
-    '#22d3ee','#fbbf24','#f472b6','#4ade80','#818cf8',
-    '#f87171','#38bdf8','#facc15','#c084fc','#2dd4bf'
+    '#34d399', '#60a5fa', '#fb923c', '#a78bfa', '#fb7185',
+    '#22d3ee', '#fbbf24', '#f472b6', '#4ade80', '#818cf8',
+    '#f87171', '#38bdf8', '#facc15', '#c084fc', '#2dd4bf'
 ];
 
 const PALETTE_ALPHA = PALETTE.map(c => c + '33');
@@ -22,179 +22,179 @@ const PALETTE_ALPHA = PALETTE.map(c => c + '33');
 // we normalize it to just "CHERRY" to match the BSAS format.
 const VARIETY_MAP = {
     // TOMATE
-    'TOMATE|TOMATE CHERRY':       'CHERRY',
-    'TOMATE|TOMATE PERITA':       'PERITA',
-    'TOMATE|TOMATE REDONDO':      'REDONDO',
-    'TOMATE|TOMATE':              'SIN VARIED',
-    'TOMATE|LARGA VIDA':          'LARGA VIDA',
+    'TOMATE|TOMATE CHERRY': 'CHERRY',
+    'TOMATE|TOMATE PERITA': 'PERITA',
+    'TOMATE|TOMATE REDONDO': 'REDONDO',
+    'TOMATE|TOMATE': 'SIN VARIED',
+    'TOMATE|LARGA VIDA': 'LARGA VIDA',
 
     // PIMIENTO
-    'PIMIENTO|PIMIENTO MORRON ROJO':    'MORRON ROJO',
-    'PIMIENTO|PIMIENTO MORRON VERDE':   'MORRON VERDE',
-    'PIMIENTO|PIMIENTO MORRON AMARILLO':'MORRON AMARILLO',
-    'PIMIENTO|PIMIENTO AJI VINAGRE':    'VINAGRE',
-    'PIMIENTO|AJI PICANTE':             'PICANTE',
-    'PIMIENTO|MORRON':                  'MORRON',
+    'PIMIENTO|PIMIENTO MORRON ROJO': 'MORRON ROJO',
+    'PIMIENTO|PIMIENTO MORRON VERDE': 'MORRON VERDE',
+    'PIMIENTO|PIMIENTO MORRON AMARILLO': 'MORRON AMARILLO',
+    'PIMIENTO|PIMIENTO AJI VINAGRE': 'VINAGRE',
+    'PIMIENTO|AJI PICANTE': 'PICANTE',
+    'PIMIENTO|MORRON': 'MORRON',
 
     // NARANJA
-    'NARANJA|NARANJA VALENCIA':         'VALENCIA',
-    'NARANJA|NARANJA VALENCIA LATE':    'VALEN.LATE',
+    'NARANJA|NARANJA VALENCIA': 'VALENCIA',
+    'NARANJA|NARANJA VALENCIA LATE': 'VALEN.LATE',
     'NARANJA|NARANJA VALENCIA SEEDLES': 'VAL.SEEDLE',
-    'NARANJA|NARANJA SALUSTIANA':       'SALUSTIANA',
-    'NARANJA|NARANJA OMBLIGO':          'OMBLIGO',
-    'NARANJA|NARANJA NAVELINA':         'NAVELINA',
-    'NARANJA|MIDK NIGTH':               'MIDKNIGHT',
-    'NARANJA|VAL. FROST':               'VALEN.FROS',
-    'NARANJA|R. NAVEL':                 'W.NAVEL',
-    'NARANJA|NAVEL LATE':               'LANE LATE',
+    'NARANJA|NARANJA SALUSTIANA': 'SALUSTIANA',
+    'NARANJA|NARANJA OMBLIGO': 'OMBLIGO',
+    'NARANJA|NARANJA NAVELINA': 'NAVELINA',
+    'NARANJA|MIDK NIGTH': 'MIDKNIGHT',
+    'NARANJA|VAL. FROST': 'VALEN.FROS',
+    'NARANJA|R. NAVEL': 'W.NAVEL',
+    'NARANJA|NAVEL LATE': 'LANE LATE',
 
     // LIMON
-    'LIMON|LIMON':                'SIN VARIED',
-    'LIMON|LIMON COMERCIAL':      'SIN VARIED',
-    'LIMON|LIMON ELEGIDO':        'ELEGIDO',
-    'LIMON|LIMONEIRA':            'EUREKA',
+    'LIMON|LIMON': 'SIN VARIED',
+    'LIMON|LIMON COMERCIAL': 'SIN VARIED',
+    'LIMON|LIMON ELEGIDO': 'ELEGIDO',
+    'LIMON|LIMONEIRA': 'EUREKA',
 
     // MANDARINA
-    'MANDARINA|MANDARINA OKITSU':  'OKITZU',
-    'MANDARINA|AFURE':             'AFOURER',
+    'MANDARINA|MANDARINA OKITSU': 'OKITZU',
+    'MANDARINA|AFURE': 'AFOURER',
 
     // POMELO
-    'POMELO|POMELO ROSADO':       'ROSADO',
+    'POMELO|POMELO ROSADO': 'ROSADO',
 
     // SANDIA
-    'SANDIA|SANDIA':              'SIN VARIED',
-    'SANDIA|SANDIA REDONDA RAYADA':'REDONDA RAYADA',
+    'SANDIA|SANDIA': 'SIN VARIED',
+    'SANDIA|SANDIA REDONDA RAYADA': 'REDONDA RAYADA',
 
     // FRUTILLA
-    'FRUTILLA|FRUTILLA':          'SIN VARIED',
+    'FRUTILLA|FRUTILLA': 'SIN VARIED',
 
     // PALTA
-    'PALTA|PALTA':                'SIN VARIED',
+    'PALTA|PALTA': 'SIN VARIED',
 
     // MELON
-    'MELON|MELON CRIOLLO':        'CRIOLLO',
-    'MELON|MELON ROCIO DE MIEL':  'ROCIO MIEL',
-    'MELON|ROCIO MIEL':           'ROCIO MIEL',
+    'MELON|MELON CRIOLLO': 'CRIOLLO',
+    'MELON|MELON ROCIO DE MIEL': 'ROCIO MIEL',
+    'MELON|ROCIO MIEL': 'ROCIO MIEL',
 
     // BATATA
-    'BATATA|BATATA BLANCA':       'BLANCA',
-    'BATATA|BATATA COLORADA':     'COLORADA',
+    'BATATA|BATATA BLANCA': 'BLANCA',
+    'BATATA|BATATA COLORADA': 'COLORADA',
 
     // BERENJENA
-    'BERENJENA|BERENJENA':        'SIN VARIED',
-    'BERENJENA|BCA.MED.LA':       'VTA.MED.LA',
-    'BERENJENA|VTA.LARGA':        'VTA.MED.LA',
+    'BERENJENA|BERENJENA': 'SIN VARIED',
+    'BERENJENA|BCA.MED.LA': 'VTA.MED.LA',
+    'BERENJENA|VTA.LARGA': 'VTA.MED.LA',
 
     // PEPINO
-    'PEPINO|PEPINO':              'SIN VARIED',
+    'PEPINO|PEPINO': 'SIN VARIED',
 
     // ZAPALLITO
-    'ZAPALLITO|ZAPALLITO TRONCO': 'REDONDO',
-    'ZAPALLITO|ZAPALLITO ZUCHINI':'LARGO',
-    'ZAPALLITO|ZAPALLITO':        'SIN VARIED',
+    'ZAPALLITO|ZAPALLITO TRONCO': 'TRONCO',
+    'ZAPALLITO|ZAPALLITO ZUCHINI': 'LARGO',
+    'ZAPALLITO|ZAPALLITO': 'SIN VARIED',
 
     // ZAPALLO
-    'ZAPALLO|ZAPALLO COREANO':    'COREANO',
-    'ZAPALLO|ZAPALLO INGLES':     'INGLES',
-    'ZAPALLO|ZAPALLO PLOMO':      'PLOMO',
-    'ZAPALLO|ZAPALLO TETSUKABUTO':'TETSUKAB.',
-    'ZAPALLO|COQUENA':            'ANQUITO',
+    'ZAPALLO|ZAPALLO COREANO': 'COREANO',
+    'ZAPALLO|ZAPALLO INGLES': 'INGLES',
+    'ZAPALLO|ZAPALLO PLOMO': 'PLOMO',
+    'ZAPALLO|ZAPALLO TETSUKABUTO': 'TETSUKAB.',
+    'ZAPALLO|COQUENA': 'ANQUITO',
 
     // REPOLLO
-    'REPOLLO|REPOLLO BLANCO':     'BLANCO',
-    'REPOLLO|REPOLLO COLORADO':   'COLORADO',
+    'REPOLLO|REPOLLO BLANCO': 'BLANCO',
+    'REPOLLO|REPOLLO COLORADO': 'COLORADO',
 
     // CHAUCHA
-    'CHAUCHA|CHAUCHA MUSICA':     'MUSICA',
-    'CHAUCHA|CHAUCHA POR METRO':  'POR METRO',
-    'CHAUCHA|CHAUCHA ROLLIZA':    'ROLLIZA',
-    'CHAUCHA|CONTRANCHA':         'SIN VARIED',
+    'CHAUCHA|CHAUCHA MUSICA': 'MUSICA',
+    'CHAUCHA|CHAUCHA POR METRO': 'POR METRO',
+    'CHAUCHA|CHAUCHA ROLLIZA': 'ROLLIZA',
+    'CHAUCHA|CONTRANCHA': 'SIN VARIED',
 
     // LECHUGA
-    'LECHUGA|LECHUGA CRESPA':     'CRESPA',
-    'LECHUGA|LECHUGA MANTECOSA':  'MANTECOSA',
-    'LECHUGA|LECHUGA REPOLLADA':  'REPOLLADA',
+    'LECHUGA|LECHUGA CRESPA': 'CRESPA',
+    'LECHUGA|LECHUGA MANTECOSA': 'MANTECOSA',
+    'LECHUGA|LECHUGA REPOLLADA': 'REPOLLADA',
 
     // CHOCLO
-    'CHOCLO|CHOCLO AMARILLO':     'AMARILLO',
-    'CHOCLO|CHOCLO CREMA':        'CREMA',
-    'CHOCLO|CHOCLO CRIOLLO':      'CRIOLLO',
+    'CHOCLO|CHOCLO AMARILLO': 'AMARILLO',
+    'CHOCLO|CHOCLO CREMA': 'CREMA',
+    'CHOCLO|CHOCLO CRIOLLO': 'CRIOLLO',
 
     // ACELGA
-    'ACELGA|ACELGA':              'SIN VARIED',
+    'ACELGA|ACELGA': 'SIN VARIED',
 
     // CEB.VERDEO
     'CEB.VERDEO|CEBOLLITA DE VERDEO': 'SIN VARIED',
 
     // ALBAHACA
-    'ALBAHACA|ALBAHACA':          'SIN VARIED',
+    'ALBAHACA|ALBAHACA': 'SIN VARIED',
 
     // PEREJIL
-    'PEREJIL|PEREJIL':            'SIN VARIED',
+    'PEREJIL|PEREJIL': 'SIN VARIED',
 
     // RUCULA
-    'RUCULA|RUCULA':              'SIN VARIED',
+    'RUCULA|RUCULA': 'SIN VARIED',
 
     // ESPINACA
-    'ESPINACA|ESPINACA':          'SIN VARIED',
+    'ESPINACA|ESPINACA': 'SIN VARIED',
 
     // BROCOLI
-    'BROCOLI|BROCOLI':            'SIN VARIED',
+    'BROCOLI|BROCOLI': 'SIN VARIED',
 
     // MANDIOCA
-    'MANDIOCA|MANDIOCA':          'SIN VARIED',
-    'MANDIOCA|MANDIOCA CORRIENTES':'SIN VARIED',
+    'MANDIOCA|MANDIOCA': 'SIN VARIED',
+    'MANDIOCA|MANDIOCA CORRIENTES': 'SIN VARIED',
 
     // ACHICORIA
-    'ACHICORIA|ACHICORIA':        'SIN VARIED',
+    'ACHICORIA|ACHICORIA': 'SIN VARIED',
 
     // APIO
-    'APIO|APIO DE HOJA':          'SIN VARIED',
+    'APIO|APIO DE HOJA': 'SIN VARIED',
 
     // ARVEJA
-    'ARVEJA|ARVEJA':              'SIN VARIED',
+    'ARVEJA|ARVEJA': 'SIN VARIED',
 
     // REMOLACHA
-    'REMOLACHA|REMOLACHA':        'SIN VARIED',
+    'REMOLACHA|REMOLACHA': 'SIN VARIED',
 
     // RABANITO
-    'RABANITO|RABANITO':          'SIN VARIED',
+    'RABANITO|RABANITO': 'SIN VARIED',
 
     // PUERRO
-    'PUERRO|PUERRO':              'SIN VARIED',
+    'PUERRO|PUERRO': 'SIN VARIED',
 
     // CILANDRO
-    'CILANDRO|CILANTRO':          'SIN VARIED',
+    'CILANDRO|CILANTRO': 'SIN VARIED',
 
     // MENTA
-    'MENTA|MENTA':                'SIN VARIED',
+    'MENTA|MENTA': 'SIN VARIED',
 
     // COLIFLOR
-    'COLIFLOR|COLIFLOR':          'SIN VARIED',
+    'COLIFLOR|COLIFLOR': 'SIN VARIED',
 
     // KINOTO
-    'KINOTO|KINOTO':              'SIN VARIED',
+    'KINOTO|KINOTO': 'SIN VARIED',
 
     // POROTO
-    'POROTO|POROTO SEÑORITA':     'SEÑORITA',
+    'POROTO|POROTO SEÑORITA': 'SEÑORITA',
 
     // AROMATICAS
-    'AROMATICAS|OREGANO':         'OREGANO',
-    'AROMATICAS|LAUREL':          'LAUREL',
+    'AROMATICAS|OREGANO': 'OREGANO',
+    'AROMATICAS|LAUREL': 'LAUREL',
 
     // PAPA
-    'PAPA|PAPA BLANCA':           'BLANCA',
+    'PAPA|PAPA BLANCA': 'BLANCA',
 
     // BANANA
-    'BANANA|BANANA BRASILEÑA':    'BRASILEÑA',
-    'BANANA|BANANA PARAGUAYA':    'PARAGUAYA',
+    'BANANA|BANANA BRASILEÑA': 'BRASILEÑA',
+    'BANANA|BANANA PARAGUAYA': 'PARAGUAYA',
 
     // DURAZNO
-    'DURAZNO|DURAZNO 1633':       '1633',
+    'DURAZNO|DURAZNO 1633': '1633',
 
     // PERA
-    'PERA|PERA PACKAMS  COMERCIAL':'PACKAMS',
-    'PERA|PERA PACKAMS ELEGIGA':  'PACKAMS',
+    'PERA|PERA PACKAMS  COMERCIAL': 'PACKAMS',
+    'PERA|PERA PACKAMS ELEGIGA': 'PACKAMS',
 };
 
 function normalizeVariedad(especie, variedad) {
@@ -221,7 +221,7 @@ async function init() {
         populateFilters();
         applyFilters();
         wireFilters();
-    } catch(e) {
+    } catch (e) {
         console.error('Error loading CSV:', e);
     }
     hideLoading();
@@ -406,12 +406,12 @@ function updateKPIs() {
 
     // Top especie
     const byEspecie = groupSum(filteredData, 'especie');
-    const topEspecie = Object.entries(byEspecie).sort((a,b) => b[1] - a[1])[0];
+    const topEspecie = Object.entries(byEspecie).sort((a, b) => b[1] - a[1])[0];
 
     // Peak month
     const byMonth = monthlyTotals(filteredData);
     let peakIdx = 0, peakVal = 0;
-    byMonth.forEach((v, i) => { if (v > peakVal) { peakVal = v; peakIdx = i; }});
+    byMonth.forEach((v, i) => { if (v > peakVal) { peakVal = v; peakIdx = i; } });
 
     // Unique species
     const speciesSet = new Set(filteredData.map(r => r.especie));
@@ -563,7 +563,7 @@ function renderSeriesMonthly() {
 // ─── Chart 4: Top 10 Species ────────────────────────────────────────────
 function renderTop10() {
     const byEspecie = groupSum(filteredData, 'especie');
-    const sorted = Object.entries(byEspecie).sort((a,b) => b[1] - a[1]).slice(0, 10);
+    const sorted = Object.entries(byEspecie).sort((a, b) => b[1] - a[1]).slice(0, 10);
 
     const cfg = {
         type: 'bar',
@@ -607,7 +607,7 @@ function renderTop10() {
 function renderHeatmap() {
     const container = document.getElementById('heatmapContainer');
     const byEspecie = groupSum(filteredData, 'especie');
-    const sorted = Object.entries(byEspecie).sort((a,b) => b[1] - a[1]).slice(0, 20);
+    const sorted = Object.entries(byEspecie).sort((a, b) => b[1] - a[1]).slice(0, 20);
     const especies = sorted.map(s => s[0]);
 
     // Build matrix
@@ -692,7 +692,7 @@ function renderMarketMonthly() {
 // ─── Chart 7: Species Donut ─────────────────────────────────────────────
 function renderSpeciesDonut() {
     const byEspecie = groupSum(filteredData, 'especie');
-    const sorted = Object.entries(byEspecie).sort((a,b) => b[1] - a[1]);
+    const sorted = Object.entries(byEspecie).sort((a, b) => b[1] - a[1]);
     const top8 = sorted.slice(0, 8);
     const restVal = sorted.slice(8).reduce((s, e) => s + e[1], 0);
     if (restVal > 0) top8.push(['Otros', restVal]);
@@ -735,7 +735,7 @@ function renderVarieties() {
         const key = r.especie + ' – ' + r.variedad;
         byVar[key] = (byVar[key] || 0) + r.peso;
     });
-    const sorted = Object.entries(byVar).sort((a,b) => b[1] - a[1]).slice(0, 15);
+    const sorted = Object.entries(byVar).sort((a, b) => b[1] - a[1]).slice(0, 15);
 
     const cfg = {
         type: 'bar',
@@ -779,7 +779,7 @@ function renderVarieties() {
 function renderSeasonalityTable() {
     const container = document.getElementById('seasonalityTable');
     const byEspecie = groupSum(filteredData, 'especie');
-    const sorted = Object.entries(byEspecie).sort((a,b) => b[1] - a[1]).slice(0, 25);
+    const sorted = Object.entries(byEspecie).sort((a, b) => b[1] - a[1]).slice(0, 25);
     const especies = sorted.map(s => s[0]);
 
     // Build matrix
@@ -877,7 +877,7 @@ function tooltipConfig() {
         titleFont: { family: "'Inter'", size: 13, weight: 600 },
         bodyFont: { family: "'Inter'", size: 12 },
         callbacks: {
-            label: function(ctx) {
+            label: function (ctx) {
                 const val = ctx.parsed.y !== undefined ? ctx.parsed.y : ctx.parsed;
                 return ` ${ctx.dataset.label || ctx.label}: ${formatNum(typeof val === 'object' ? ctx.raw : val)} tn`;
             }
