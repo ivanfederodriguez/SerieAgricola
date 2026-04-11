@@ -1,0 +1,17 @@
+# Data files (contain sensitive production data)
+*.csv
+*.xlsx
+*.xls
+
+# Python
+*.py
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

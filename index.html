@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Agrícola – Corrientes 2025</title>
+    <meta name="description" content="Dashboard interactivo de producción agrícola de la provincia de Corrientes, Argentina. Análisis de frutas y hortalizas por mercado, especie y estacionalidad.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 32 32" fill="none">
+                        <path d="M16 2C16 2 6 8 6 18C6 23.523 10.477 28 16 28C21.523 28 26 23.523 26 18C26 8 16 2 16 2Z" fill="url(#leaf)"/>
+                        <path d="M16 8V22M12 14C14 12 18 12 20 14" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                        <defs><linearGradient id="leaf" x1="6" y1="2" x2="26" y2="28"><stop stop-color="#34d399"/><stop offset="1" stop-color="#059669"/></linearGradient></defs>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="header-title">Producción Agrícola</h1>
+                    <p class="header-subtitle">Provincia de Corrientes · 2025</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-stat">
+                    <span class="header-stat-label">Producción Total</span>
+                    <span class="header-stat-value" id="totalProduction">–</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-label">Especies</span>
+                    <span class="header-stat-value" id="totalSpecies">–</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-label">Último Registro</span>
+                    <span class="header-stat-value" id="lastDate">–</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Filters -->
+    <section class="filters-section">
+        <div class="filters-inner">
+            <div class="filter-group">
+                <label class="filter-label">Mercado</label>
+                <select id="filterMercado" class="filter-select">
+                    <option value="TODOS">Todos</option>
+                    <option value="BSAS">Buenos Aires</option>
+                    <option value="CORRIENTES">Corrientes</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Serie</label>
+                <select id="filterSerie" class="filter-select">
+                    <option value="TODOS">Todas</option>
+                    <option value="FRUTAS">Frutas</option>
+                    <option value="HORTALIZAS">Hortalizas</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Especie</label>
+                <select id="filterEspecie" class="filter-select">
+                    <option value="TODOS">Todas</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- KPI Cards -->
+    <section class="kpi-section">
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-frutas">
+                <div class="kpi-icon">🍊</div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Frutas</span>
+                    <span class="kpi-value" id="kpiFrutas">–</span>
+                    <span class="kpi-unit">toneladas</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-hortalizas">
+                <div class="kpi-icon">🥬</div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Hortalizas</span>
+                    <span class="kpi-value" id="kpiHortalizas">–</span>
+                    <span class="kpi-unit">toneladas</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-bsas">
+                <div class="kpi-icon">📦</div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Mercado BSAS</span>
+                    <span class="kpi-value" id="kpiBsas">–</span>
+                    <span class="kpi-unit">toneladas</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-ctes">
+                <div class="kpi-icon">🏠</div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Mercado Corrientes</span>
+                    <span class="kpi-value" id="kpiCtes">–</span>
+                    <span class="kpi-unit">toneladas</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-top">
+                <div class="kpi-icon">🏆</div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Especie Top</span>
+                    <span class="kpi-value" id="kpiTopEspecie">–</span>
+                    <span class="kpi-unit" id="kpiTopEspecieTon">–</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-month">
+                <div class="kpi-icon">📅</div>
+                <div class="kpi-content">
+                    <span class="kpi-label">Mes Pico</span>
+                    <span class="kpi-value" id="kpiPeakMonth">–</span>
+                    <span class="kpi-unit" id="kpiPeakMonthTon">–</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts Grid -->
+    <main class="charts-section">
+        <!-- Row 1: Monthly production & Market comparison -->
+        <div class="charts-row">
+            <div class="chart-card chart-card-large">
+                <div class="chart-header">
+                    <h2 class="chart-title">Producción Mensual Total</h2>
+                    <p class="chart-desc">Evolución de la producción por mes – componente estacional</p>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartMonthly"></canvas>
+                </div>
+            </div>
+            <div class="chart-card chart-card-small">
+                <div class="chart-header">
+                    <h2 class="chart-title">Distribución por Mercado</h2>
+                    <p class="chart-desc">Participación BSAS vs Corrientes</p>
+                </div>
+                <div class="chart-body chart-body-donut">
+                    <canvas id="chartMarket"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Frutas vs Hortalizas & Top 10 -->
+        <div class="charts-row">
+            <div class="chart-card chart-card-medium">
+                <div class="chart-header">
+                    <h2 class="chart-title">Frutas vs Hortalizas por Mes</h2>
+                    <p class="chart-desc">Comparación estacional entre series</p>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartSeriesMonthly"></canvas>
+                </div>
+            </div>
+            <div class="chart-card chart-card-medium">
+                <div class="chart-header">
+                    <h2 class="chart-title">Top 10 Especies</h2>
+                    <p class="chart-desc">Especies con mayor volumen de producción</p>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartTop10"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Heatmap & Treemap -->
+        <div class="charts-row">
+            <div class="chart-card chart-card-full">
+                <div class="chart-header">
+                    <h2 class="chart-title">Mapa de Calor Estacional</h2>
+                    <p class="chart-desc">Producción de cada especie por mes – Intensidad por volumen</p>
+                </div>
+                <div class="chart-body chart-body-heatmap" id="heatmapContainer">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: Market comparison monthly & Species composition -->
+        <div class="charts-row">
+            <div class="chart-card chart-card-medium">
+                <div class="chart-header">
+                    <h2 class="chart-title">Producción por Mercado (Mensual)</h2>
+                    <p class="chart-desc">Cómo se reparte la producción entre mercados cada mes</p>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartMarketMonthly"></canvas>
+                </div>
+            </div>
+            <div class="chart-card chart-card-medium">
+                <div class="chart-header">
+                    <h2 class="chart-title">Composición por Especie</h2>
+                    <p class="chart-desc">Distribución porcentual de la producción total</p>
+                </div>
+                <div class="chart-body chart-body-donut">
+                    <canvas id="chartSpeciesDonut"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 5: Variety analysis -->
+        <div class="charts-row">
+            <div class="chart-card chart-card-full">
+                <div class="chart-header">
+                    <h2 class="chart-title">Top 15 Variedades</h2>
+                    <p class="chart-desc">Detalle de las variedades más producidas (Especie – Variedad)</p>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartVarieties"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 6: Seasonality table -->
+        <div class="charts-row">
+            <div class="chart-card chart-card-full">
+                <div class="chart-header">
+                    <h2 class="chart-title">Tabla de Estacionalidad</h2>
+                    <p class="chart-desc">Presencia y volumen de cada especie por mes del año</p>
+                </div>
+                <div class="chart-body chart-body-table" id="seasonalityTable">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Dashboard Agrícola · Corrientes 2025 · Datos de producción frutihortícola</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
