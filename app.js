@@ -258,18 +258,23 @@ function parseCSV(text) {
         if (isNaN(month) || month < 1 || month > 12) continue;
 
         // Parse weight (European format)
-        const pesoStr = (cols[6] || '').trim().replace(/\./g, '').replace(',', '.');
+        const pesoStr = (cols[7] || '').trim().replace(/\./g, '').replace(',', '.');
         const peso = parseFloat(pesoStr);
         if (isNaN(peso) || peso <= 0) continue;
 
         const mercado = (cols[1] || '').trim().toUpperCase();
         const especie = (cols[3] || '').trim().toUpperCase();
         const rawVariedad = (cols[4] || '').trim().toUpperCase();
+        const procedencia = (cols[5] || '').trim().toUpperCase();
+
+        let municipio = (cols[6] || '').trim().toUpperCase();
+        if (!municipio) municipio = procedencia;
 
         // Normalize variedad
         const variedad = normalizeVariedad(especie, rawVariedad);
 
-        rows.push({ day, month, year, mercado, serie, especie, variedad, peso });
+        const origen = procedencia;
+        rows.push({ day, month, year, mercado, serie, especie, variedad, municipio, peso, origen });
     }
 
     return rows;
@@ -277,29 +282,74 @@ function parseCSV(text) {
 
 // ─── Cascading Dynamic Filters ──────────────────────────────────────────
 function wireFilters() {
-    document.getElementById('filterMercado').addEventListener('change', () => {
+    document.getElementById('filterOrigen').addEventListener('change', () => {
+        const origen = document.getElementById('filterOrigen').value;
+        const btnMunicipio = document.getElementById('filterMunicipio');
+        const grpMunicipio = document.getElementById('filterGroupMunicipio');
+        
+        if (origen === 'CORRIentes' || origen === 'CORRIENTES') {
+            grpMunicipio.style.display = 'flex';
+            btnMunicipio.disabled = false;
+        } else {
+            grpMunicipio.style.display = 'none';
+            btnMunicipio.value = 'TODOS';
+            btnMunicipio.disabled = true;
+        }
+
         updateSerieFilter();
         updateEspecieFilter();
+        updateMunicipioFilter();
+        applyFilters();
+    });
+    document.getElementById('filterDestino').addEventListener('change', () => {
+        updateSerieFilter();
+        updateEspecieFilter();
+        updateMunicipioFilter();
         applyFilters();
     });
     document.getElementById('filterSerie').addEventListener('change', () => {
         updateEspecieFilter();
+        updateMunicipioFilter();
         applyFilters();
     });
     document.getElementById('filterEspecie').addEventListener('change', () => {
+        updateMunicipioFilter();
+        applyFilters();
+    });
+    document.getElementById('filterMunicipio').addEventListener('change', () => {
+        const selMunicipio = document.getElementById('filterMunicipio').value;
+        if (selMunicipio !== 'TODOS') {
+            document.getElementById('filterOrigen').value = 'CORRIENTES';
+            updateSerieFilter();
+        }
+        updateEspecieFilter();
         applyFilters();
     });
 }
 
 /** Populate all filters initially based on rawData */
 function populateFilters() {
-    populateMercadoFilter();
+    populateOrigenFilter();
+    populateDestinoFilter();
     updateSerieFilter();
     updateEspecieFilter();
+    updateMunicipioFilter();
 }
 
-function populateMercadoFilter() {
-    const sel = document.getElementById('filterMercado');
+function populateOrigenFilter() {
+    const sel = document.getElementById('filterOrigen');
+    const origenes = [...new Set(rawData.map(r => r.origen))].sort();
+    sel.innerHTML = '<option value="TODOS">Todos</option>';
+    origenes.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o;
+        opt.textContent = capitalizeWords(o);
+        sel.appendChild(opt);
+    });
+}
+
+function populateDestinoFilter() {
+    const sel = document.getElementById('filterDestino');
     const mercados = [...new Set(rawData.map(r => r.mercado))].sort();
     sel.innerHTML = '<option value="TODOS">Todos</option>';
     mercados.forEach(m => {
@@ -310,14 +360,16 @@ function populateMercadoFilter() {
     });
 }
 
-/** Update Serie filter based on selected Mercado */
+/** Update Serie filter based on selected Origen and Destino */
 function updateSerieFilter() {
-    const mercado = document.getElementById('filterMercado').value;
+    const origen = document.getElementById('filterOrigen').value;
+    const destino = document.getElementById('filterDestino').value;
     const currentSerie = document.getElementById('filterSerie').value;
 
-    // Get available series for the selected mercado
+    // Get available series for the selected origen/destino
     let subset = rawData;
-    if (mercado !== 'TODOS') subset = rawData.filter(r => r.mercado === mercado);
+    if (origen !== 'TODOS') subset = subset.filter(r => r.origen === origen);
+    if (destino !== 'TODOS') subset = subset.filter(r => r.mercado === destino);
     const series = [...new Set(subset.map(r => r.serie))].sort();
 
     const sel = document.getElementById('filterSerie');
@@ -337,16 +389,20 @@ function updateSerieFilter() {
     }
 }
 
-/** Update Especie filter based on selected Mercado + Serie */
+/** Update Especie filter based on selected Origen, Destino, Serie and Municipio */
 function updateEspecieFilter() {
-    const mercado = document.getElementById('filterMercado').value;
+    const origen = document.getElementById('filterOrigen').value;
+    const destino = document.getElementById('filterDestino').value;
     const serie = document.getElementById('filterSerie').value;
+    const municipio = document.getElementById('filterMunicipio') ? document.getElementById('filterMunicipio').value : 'TODOS';
     const currentEspecie = document.getElementById('filterEspecie').value;
 
-    // Filter data by mercado and serie
+    // Filter data
     let subset = rawData;
-    if (mercado !== 'TODOS') subset = subset.filter(r => r.mercado === mercado);
+    if (origen !== 'TODOS') subset = subset.filter(r => r.origen === origen);
+    if (destino !== 'TODOS') subset = subset.filter(r => r.mercado === destino);
     if (serie !== 'TODOS') subset = subset.filter(r => r.serie === serie);
+    if (municipio !== 'TODOS') subset = subset.filter(r => r.municipio === municipio);
 
     const especies = [...new Set(subset.map(r => r.especie))].sort();
 
@@ -367,15 +423,53 @@ function updateEspecieFilter() {
     }
 }
 
+/** Update Municipio filter based on selected Origen, Destino, Serie and Especie */
+function updateMunicipioFilter() {
+    const origen = document.getElementById('filterOrigen').value;
+    const destino = document.getElementById('filterDestino').value;
+    const serie = document.getElementById('filterSerie').value;
+    const especie = document.getElementById('filterEspecie') ? document.getElementById('filterEspecie').value : 'TODOS';
+    const currentMunicipio = document.getElementById('filterMunicipio').value;
+
+    // Filter data
+    let subset = rawData;
+    if (origen !== 'TODOS') subset = subset.filter(r => r.origen === origen);
+    if (destino !== 'TODOS') subset = subset.filter(r => r.mercado === destino);
+    if (serie !== 'TODOS') subset = subset.filter(r => r.serie === serie);
+    if (especie !== 'TODOS') subset = subset.filter(r => r.especie === especie);
+
+    const municipios = [...new Set(subset.map(r => r.municipio))].sort();
+
+    const sel = document.getElementById('filterMunicipio');
+    sel.innerHTML = '<option value="TODOS">Todos (' + municipios.length + ')</option>';
+    municipios.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = capitalizeWords(m);
+        sel.appendChild(opt);
+    });
+
+    // Restore previous selection if still available
+    if (municipios.includes(currentMunicipio)) {
+        sel.value = currentMunicipio;
+    } else {
+        sel.value = 'TODOS';
+    }
+}
+
 function applyFilters() {
-    const mercado = document.getElementById('filterMercado').value;
+    const origen = document.getElementById('filterOrigen').value;
+    const destino = document.getElementById('filterDestino').value;
     const serie = document.getElementById('filterSerie').value;
     const especie = document.getElementById('filterEspecie').value;
+    const municipio = document.getElementById('filterMunicipio').value;
 
     filteredData = rawData.filter(r => {
-        if (mercado !== 'TODOS' && r.mercado !== mercado) return false;
+        if (origen !== 'TODOS' && r.origen !== origen) return false;
+        if (destino !== 'TODOS' && r.mercado !== destino) return false;
         if (serie !== 'TODOS' && r.serie !== serie) return false;
         if (especie !== 'TODOS' && r.especie !== especie) return false;
+        if (municipio !== 'TODOS' && r.municipio !== municipio) return false;
         return true;
     });
 

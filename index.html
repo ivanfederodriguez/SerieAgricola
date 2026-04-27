@@ -50,8 +50,20 @@
     <section class="filters-section">
         <div class="filters-inner">
             <div class="filter-group">
-                <label class="filter-label">Mercado</label>
-                <select id="filterMercado" class="filter-select">
+                <label class="filter-label">Origen</label>
+                <select id="filterOrigen" class="filter-select">
+                    <option value="TODOS">Todos</option>
+                </select>
+            </div>
+            <div class="filter-group" id="filterGroupMunicipio" style="display: none;">
+                <label class="filter-label">Municipio</label>
+                <select id="filterMunicipio" class="filter-select">
+                    <option value="TODOS">Todos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Destino</label>
+                <select id="filterDestino" class="filter-select">
                     <option value="TODOS">Todos</option>
                     <option value="BSAS">Buenos Aires</option>
                     <option value="CORRIENTES">Corrientes</option>
