@@ -254,11 +254,15 @@ function parseCSV(text) {
         if (dateParts.length < 3) continue;
         const day = parseInt(dateParts[0], 10);
         const month = parseInt(dateParts[1], 10); // 1-12
-        const year = parseInt(dateParts[2], 10);
+        let year = parseInt(dateParts[2], 10);
+        if (year < 100) year += 2000;
         if (isNaN(month) || month < 1 || month > 12) continue;
 
-        // Parse weight (European format)
-        const pesoStr = (cols[7] || '').trim().replace(/\./g, '').replace(',', '.');
+        // Parse weight (European or standard format)
+        let pesoStr = (cols[7] || '').trim();
+        if (pesoStr.includes(',')) {
+            pesoStr = pesoStr.replace(/\./g, '').replace(',', '.');
+        }
         const peso = parseFloat(pesoStr);
         if (isNaN(peso) || peso <= 0) continue;
 
@@ -282,12 +286,20 @@ function parseCSV(text) {
 
 // ─── Cascading Dynamic Filters ──────────────────────────────────────────
 function wireFilters() {
+    document.getElementById('filterAño').addEventListener('change', () => {
+        updateOrigenFilter();
+        updateDestinoFilter();
+        updateSerieFilter();
+        updateEspecieFilter();
+        updateMunicipioFilter();
+        applyFilters();
+    });
     document.getElementById('filterOrigen').addEventListener('change', () => {
         const origen = document.getElementById('filterOrigen').value;
         const btnMunicipio = document.getElementById('filterMunicipio');
         const grpMunicipio = document.getElementById('filterGroupMunicipio');
         
-        if (origen === 'CORRIentes' || origen === 'CORRIENTES') {
+        if (origen === 'CORRIENTES') {
             grpMunicipio.style.display = 'flex';
             btnMunicipio.disabled = false;
         } else {
@@ -329,16 +341,43 @@ function wireFilters() {
 
 /** Populate all filters initially based on rawData */
 function populateFilters() {
-    populateOrigenFilter();
-    populateDestinoFilter();
+    populateAñoFilter();
+    updateOrigenFilter();
+    updateDestinoFilter();
     updateSerieFilter();
     updateEspecieFilter();
     updateMunicipioFilter();
 }
 
-function populateOrigenFilter() {
+function populateAñoFilter() {
+    const sel = document.getElementById('filterAño');
+    const years = [...new Set(rawData.map(r => r.year))].sort((a, b) => b - a); // Sort descending (2025, 2024)
+    
+    sel.innerHTML = '<option value="TODOS">Todos</option>';
+    years.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        sel.appendChild(opt);
+    });
+    
+    // Default to latest year
+    if (years.length > 0) {
+        sel.value = years[0];
+    } else {
+        sel.value = 'TODOS';
+    }
+}
+
+function updateOrigenFilter() {
+    const yearSel = document.getElementById('filterAño').value;
+    const currentOrigen = document.getElementById('filterOrigen').value;
+    
+    let subset = rawData;
+    if (yearSel !== 'TODOS') subset = subset.filter(r => r.year === parseInt(yearSel, 10));
+    const origenes = [...new Set(subset.map(r => r.origen))].sort();
+    
     const sel = document.getElementById('filterOrigen');
-    const origenes = [...new Set(rawData.map(r => r.origen))].sort();
     sel.innerHTML = '<option value="TODOS">Todos</option>';
     origenes.forEach(o => {
         const opt = document.createElement('option');
@@ -346,11 +385,23 @@ function populateOrigenFilter() {
         opt.textContent = capitalizeWords(o);
         sel.appendChild(opt);
     });
+    
+    if (origenes.includes(currentOrigen)) {
+        sel.value = currentOrigen;
+    } else {
+        sel.value = 'TODOS';
+    }
 }
 
-function populateDestinoFilter() {
+function updateDestinoFilter() {
+    const yearSel = document.getElementById('filterAño').value;
+    const currentDestino = document.getElementById('filterDestino').value;
+    
+    let subset = rawData;
+    if (yearSel !== 'TODOS') subset = subset.filter(r => r.year === parseInt(yearSel, 10));
+    const mercados = [...new Set(subset.map(r => r.mercado))].sort();
+    
     const sel = document.getElementById('filterDestino');
-    const mercados = [...new Set(rawData.map(r => r.mercado))].sort();
     sel.innerHTML = '<option value="TODOS">Todos</option>';
     mercados.forEach(m => {
         const opt = document.createElement('option');
@@ -358,16 +409,24 @@ function populateDestinoFilter() {
         opt.textContent = m === 'BSAS' ? 'Buenos Aires' : capitalize(m);
         sel.appendChild(opt);
     });
+    
+    if (mercados.includes(currentDestino)) {
+        sel.value = currentDestino;
+    } else {
+        sel.value = 'TODOS';
+    }
 }
 
-/** Update Serie filter based on selected Origen and Destino */
+/** Update Serie filter based on selected Año, Origen and Destino */
 function updateSerieFilter() {
+    const yearSel = document.getElementById('filterAño').value;
     const origen = document.getElementById('filterOrigen').value;
     const destino = document.getElementById('filterDestino').value;
     const currentSerie = document.getElementById('filterSerie').value;
 
-    // Get available series for the selected origen/destino
+    // Get available series for the selected year/origen/destino
     let subset = rawData;
+    if (yearSel !== 'TODOS') subset = subset.filter(r => r.year === parseInt(yearSel, 10));
     if (origen !== 'TODOS') subset = subset.filter(r => r.origen === origen);
     if (destino !== 'TODOS') subset = subset.filter(r => r.mercado === destino);
     const series = [...new Set(subset.map(r => r.serie))].sort();
@@ -389,8 +448,9 @@ function updateSerieFilter() {
     }
 }
 
-/** Update Especie filter based on selected Origen, Destino, Serie and Municipio */
+/** Update Especie filter based on selected Año, Origen, Destino, Serie and Municipio */
 function updateEspecieFilter() {
+    const yearSel = document.getElementById('filterAño').value;
     const origen = document.getElementById('filterOrigen').value;
     const destino = document.getElementById('filterDestino').value;
     const serie = document.getElementById('filterSerie').value;
@@ -399,6 +459,7 @@ function updateEspecieFilter() {
 
     // Filter data
     let subset = rawData;
+    if (yearSel !== 'TODOS') subset = subset.filter(r => r.year === parseInt(yearSel, 10));
     if (origen !== 'TODOS') subset = subset.filter(r => r.origen === origen);
     if (destino !== 'TODOS') subset = subset.filter(r => r.mercado === destino);
     if (serie !== 'TODOS') subset = subset.filter(r => r.serie === serie);
@@ -423,8 +484,9 @@ function updateEspecieFilter() {
     }
 }
 
-/** Update Municipio filter based on selected Origen, Destino, Serie and Especie */
+/** Update Municipio filter based on selected Año, Origen, Destino, Serie and Especie */
 function updateMunicipioFilter() {
+    const yearSel = document.getElementById('filterAño').value;
     const origen = document.getElementById('filterOrigen').value;
     const destino = document.getElementById('filterDestino').value;
     const serie = document.getElementById('filterSerie').value;
@@ -433,6 +495,7 @@ function updateMunicipioFilter() {
 
     // Filter data
     let subset = rawData;
+    if (yearSel !== 'TODOS') subset = subset.filter(r => r.year === parseInt(yearSel, 10));
     if (origen !== 'TODOS') subset = subset.filter(r => r.origen === origen);
     if (destino !== 'TODOS') subset = subset.filter(r => r.mercado === destino);
     if (serie !== 'TODOS') subset = subset.filter(r => r.serie === serie);
@@ -458,6 +521,7 @@ function updateMunicipioFilter() {
 }
 
 function applyFilters() {
+    const yearSel = document.getElementById('filterAño').value;
     const origen = document.getElementById('filterOrigen').value;
     const destino = document.getElementById('filterDestino').value;
     const serie = document.getElementById('filterSerie').value;
@@ -465,6 +529,7 @@ function applyFilters() {
     const municipio = document.getElementById('filterMunicipio').value;
 
     filteredData = rawData.filter(r => {
+        if (yearSel !== 'TODOS' && r.year !== parseInt(yearSel, 10)) return false;
         if (origen !== 'TODOS' && r.origen !== origen) return false;
         if (destino !== 'TODOS' && r.mercado !== destino) return false;
         if (serie !== 'TODOS' && r.serie !== serie) return false;
@@ -476,8 +541,21 @@ function applyFilters() {
     updateDashboard();
 }
 
+function updateHeaderSubtitle() {
+    const yearSel = document.getElementById('filterAño').value;
+    const subtitleEl = document.getElementById('headerSubtitle');
+    if (subtitleEl) {
+        if (yearSel === 'TODOS') {
+            subtitleEl.textContent = 'Provincia de Corrientes · 2024 - 2025';
+        } else {
+            subtitleEl.textContent = 'Provincia de Corrientes · ' + yearSel;
+        }
+    }
+}
+
 // ─── Dashboard update orchestrator ──────────────────────────────────────
 function updateDashboard() {
+    updateHeaderSubtitle();
     updateKPIs();
     renderMonthlyChart();
     renderMarketDonut();
